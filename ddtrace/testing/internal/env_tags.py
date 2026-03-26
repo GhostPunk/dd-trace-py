@@ -1,6 +1,7 @@
 import os
 import typing as t
 
+from ddtrace.internal.settings.env import dd_environ
 from ddtrace.testing.internal import ci
 from ddtrace.testing.internal import git
 from ddtrace.testing.internal.ci import CITag
@@ -31,9 +32,9 @@ def get_env_tags() -> dict[str, str]:
     merge_tags(
         tags,
         git.get_git_tags_from_git_command(),
-        ci.get_ci_tags(os.environ),
-        git.get_git_tags_from_dd_variables(os.environ),
-        get_custom_dd_tags(os.environ),
+        ci.get_ci_tags(dd_environ),
+        git.get_git_tags_from_dd_variables(dd_environ),
+        get_custom_dd_tags(dd_environ),
     )
 
     if head_sha := tags.get(GitTag.COMMIT_HEAD_SHA):
@@ -49,7 +50,7 @@ def get_env_tags() -> dict[str, str]:
         tags[CITag.WORKSPACE_PATH] = str(get_workspace_path())
 
     # Allow JOB_ID environment variable to override job ID from any provider
-    if job_id := os.environ.get("JOB_ID"):
+    if job_id := dd_environ.get("JOB_ID"):
         tags[CITag.JOB_ID] = job_id
 
     return {k: v for k, v in tags.items() if v}

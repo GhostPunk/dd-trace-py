@@ -8,7 +8,6 @@ ignores:
   - "ddtrace/internal/settings/env.py"
   - "ddtrace/appsec/_iast/_taint_tracking/_vendor/**"
   - "ddtrace/vendor/**"
-  - "ddtrace/testing/**"
 rule:
   pattern: from os import getenv
 fix: from ddtrace.internal.settings import env
