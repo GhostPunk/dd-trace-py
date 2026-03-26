@@ -31,6 +31,7 @@ from ddtrace.internal.remoteconfig.constants import REMOTE_CONFIG_AGENT_ENDPOINT
 from ddtrace.internal.service import ServiceStatus
 from ddtrace.internal.settings._agent import config as agent_config
 from ddtrace.internal.settings._core import DDConfig
+from ddtrace.internal.settings.env import dd_environ
 from ddtrace.internal.telemetry import telemetry_writer
 from ddtrace.internal.telemetry.constants import TELEMETRY_LOG_LEVEL
 from ddtrace.internal.utils.formats import parse_tags_str
@@ -212,7 +213,7 @@ class RemoteConfigClient:
         self.agent_url = agent_config.trace_agent_url
 
         self._headers = {"content-type": "application/json"}
-        additional_header_str = os.environ.get("_DD_REMOTE_CONFIGURATION_ADDITIONAL_HEADERS")
+        additional_header_str = dd_environ.get("_DD_REMOTE_CONFIGURATION_ADDITIONAL_HEADERS")
         if additional_header_str is not None:
             self._headers.update(parse_tags_str(additional_header_str))
 

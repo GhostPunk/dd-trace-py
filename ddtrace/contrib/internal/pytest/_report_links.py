@@ -1,9 +1,9 @@
-import os
 import re
 from urllib.parse import quote
 
 from ddtrace.ext import ci
 from ddtrace.internal.ci_visibility.service_registry import require_ci_visibility_service
+from ddtrace.internal.settings.env import getenv
 
 
 DEFAULT_DATADOG_SITE = "datadoghq.com"
@@ -13,9 +13,7 @@ SAFE_FOR_QUERY = re.compile(r"\A[A-Za-z0-9._-]+\Z")
 
 
 def print_test_report_links(terminalreporter):
-    base_url = _get_base_url(
-        dd_site=os.getenv("DD_SITE", DEFAULT_DATADOG_SITE), dd_subdomain=os.getenv("DD_SUBDOMAIN", "")
-    )
+    base_url = _get_base_url(dd_site=getenv("DD_SITE", DEFAULT_DATADOG_SITE), dd_subdomain=getenv("DD_SUBDOMAIN", ""))
     ci_visibility_instance = require_ci_visibility_service()
     ci_tags = ci_visibility_instance.get_ci_tags()
     settings = ci_visibility_instance.get_session_settings()

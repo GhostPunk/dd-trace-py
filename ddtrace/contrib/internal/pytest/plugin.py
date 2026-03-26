@@ -12,8 +12,6 @@ to be run at specific points during pytest execution. The most important hooks u
 
 """
 
-import os
-
 import pytest
 
 from ddtrace import config
@@ -33,6 +31,7 @@ from ddtrace.contrib.internal.pytest._plugin_v2 import pytest_terminal_summary  
 from ddtrace.contrib.internal.pytest._utils import _extract_span
 from ddtrace.internal.settings._telemetry import config as telemetry_config
 from ddtrace.internal.settings.asm import config as asm_config
+from ddtrace.internal.settings.env import getenv
 
 
 if asm_config._iast_enabled:
@@ -44,7 +43,7 @@ config._add(
     "pytest",
     dict(
         _default_service="pytest",
-        operation_name=os.getenv("DD_PYTEST_OPERATION_NAME", default="pytest.test"),
+        operation_name=getenv("DD_PYTEST_OPERATION_NAME", default="pytest.test"),
     ),
 )
 

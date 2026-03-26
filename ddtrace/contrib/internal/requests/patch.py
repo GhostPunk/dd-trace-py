@@ -1,5 +1,3 @@
-import os
-
 import requests
 from wrapt import wrap_function_wrapper as _w
 
@@ -8,6 +6,7 @@ from ddtrace._trace.pin import Pin
 from ddtrace.contrib.internal.trace_utils import unwrap as _u
 from ddtrace.internal.schema import schematize_service_name
 from ddtrace.internal.settings.asm import config as asm_config
+from ddtrace.internal.settings.env import getenv
 from ddtrace.internal.utils.formats import asbool
 
 from .connection import _wrap_send
@@ -18,8 +17,8 @@ from .session import TracedSession
 config._add(
     "requests",
     {
-        "distributed_tracing": asbool(os.getenv("DD_REQUESTS_DISTRIBUTED_TRACING", default=True)),
-        "split_by_domain": asbool(os.getenv("DD_REQUESTS_SPLIT_BY_DOMAIN", default=False)),
+        "distributed_tracing": asbool(getenv("DD_REQUESTS_DISTRIBUTED_TRACING", default=True)),
+        "split_by_domain": asbool(getenv("DD_REQUESTS_SPLIT_BY_DOMAIN", default=False)),
         "default_http_tag_query_string": config._http_client_tag_query_string,
         "_default_service": schematize_service_name("requests"),
     },

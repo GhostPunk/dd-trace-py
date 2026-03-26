@@ -4,7 +4,6 @@ Trace queries to aws api done via botocore client
 
 import collections
 import json
-import os
 from typing import Union  # noqa:F401
 
 from botocore import __version__
@@ -28,6 +27,7 @@ from ddtrace.internal.schema import schematize_cloud_faas_operation
 from ddtrace.internal.schema import schematize_cloud_messaging_operation
 from ddtrace.internal.schema import schematize_service_name
 from ddtrace.internal.settings._config import Config
+from ddtrace.internal.settings.env import getenv
 from ddtrace.internal.utils import get_argument_value
 from ddtrace.internal.utils.formats import asbool
 from ddtrace.internal.utils.formats import deep_getattr
@@ -72,7 +72,7 @@ log = get_logger(__name__)
 
 def _load_dynamodb_primary_key_names_for_tables() -> dict[str, set[str]]:
     try:
-        encoded_table_primary_keys = os.getenv("DD_BOTOCORE_DYNAMODB_TABLE_PRIMARY_KEYS", "{}")
+        encoded_table_primary_keys = getenv("DD_BOTOCORE_DYNAMODB_TABLE_PRIMARY_KEYS", "{}")
         raw_table_primary_keys = json.loads(encoded_table_primary_keys)
 
         table_primary_keys = {}
@@ -100,27 +100,27 @@ def _load_dynamodb_primary_key_names_for_tables() -> dict[str, set[str]]:
 config._add(
     "botocore",
     {
-        "_default_service": os.getenv("DD_BOTOCORE_SERVICE", default="aws"),
-        "distributed_tracing": asbool(os.getenv("DD_BOTOCORE_DISTRIBUTED_TRACING", default=True)),
-        "invoke_with_legacy_context": asbool(os.getenv("DD_BOTOCORE_INVOKE_WITH_LEGACY_CONTEXT", default=False)),
+        "_default_service": getenv("DD_BOTOCORE_SERVICE", default="aws"),
+        "distributed_tracing": asbool(getenv("DD_BOTOCORE_DISTRIBUTED_TRACING", default=True)),
+        "invoke_with_legacy_context": asbool(getenv("DD_BOTOCORE_INVOKE_WITH_LEGACY_CONTEXT", default=False)),
         "operations": collections.defaultdict(Config._HTTPServerConfig),
-        "tag_no_params": asbool(os.getenv("DD_AWS_TAG_NO_PARAMS", default=False)),
-        "instrument_internals": asbool(os.getenv("DD_BOTOCORE_INSTRUMENT_INTERNALS", default=False)),
-        "propagation_enabled": asbool(os.getenv("DD_BOTOCORE_PROPAGATION_ENABLED", default=False)),
-        "empty_poll_enabled": asbool(os.getenv("DD_BOTOCORE_EMPTY_POLL_ENABLED", default=True)),
+        "tag_no_params": asbool(getenv("DD_AWS_TAG_NO_PARAMS", default=False)),
+        "instrument_internals": asbool(getenv("DD_BOTOCORE_INSTRUMENT_INTERNALS", default=False)),
+        "propagation_enabled": asbool(getenv("DD_BOTOCORE_PROPAGATION_ENABLED", default=False)),
+        "empty_poll_enabled": asbool(getenv("DD_BOTOCORE_EMPTY_POLL_ENABLED", default=True)),
         "dynamodb_primary_key_names_for_tables": _load_dynamodb_primary_key_names_for_tables(),
-        "add_span_pointers": asbool(os.getenv("DD_BOTOCORE_ADD_SPAN_POINTERS", default=True)),
-        "payload_tagging_request": os.getenv("DD_TRACE_CLOUD_REQUEST_PAYLOAD_TAGGING", default=None),
-        "payload_tagging_response": os.getenv("DD_TRACE_CLOUD_RESPONSE_PAYLOAD_TAGGING", default=None),
+        "add_span_pointers": asbool(getenv("DD_BOTOCORE_ADD_SPAN_POINTERS", default=True)),
+        "payload_tagging_request": getenv("DD_TRACE_CLOUD_REQUEST_PAYLOAD_TAGGING", default=None),
+        "payload_tagging_response": getenv("DD_TRACE_CLOUD_RESPONSE_PAYLOAD_TAGGING", default=None),
         "payload_tagging_max_depth": int(
-            os.getenv("DD_TRACE_CLOUD_PAYLOAD_TAGGING_MAX_DEPTH", 10)
+            getenv("DD_TRACE_CLOUD_PAYLOAD_TAGGING_MAX_DEPTH", 10)
         ),  # RFC defined 10 levels (1.2.3.4...10) as max tagging depth
         "payload_tagging_max_tags": int(
-            os.getenv("DD_TRACE_CLOUD_PAYLOAD_TAGGING_MAX_TAGS", 758)
+            getenv("DD_TRACE_CLOUD_PAYLOAD_TAGGING_MAX_TAGS", 758)
         ),  # RFC defined default limit - spans are limited past 1000
         "payload_tagging_services": set(
             service.strip()
-            for service in os.getenv(
+            for service in getenv(
                 "DD_TRACE_CLOUD_PAYLOAD_TAGGING_SERVICES", "s3,sns,sqs,kinesis,eventbridge,dynamodb"
             ).split(",")
         ),

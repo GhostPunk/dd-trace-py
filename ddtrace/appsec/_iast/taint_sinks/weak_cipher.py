@@ -1,4 +1,3 @@
-import os
 from typing import Any
 from typing import Callable
 from typing import Text
@@ -13,6 +12,7 @@ from ddtrace.appsec._iast.constants import RC4_DEF
 from ddtrace.appsec._iast.constants import VULN_WEAK_CIPHER_TYPE
 from ddtrace.internal.logger import get_logger
 from ddtrace.internal.settings.asm import config as asm_config
+from ddtrace.internal.settings.env import getenv
 
 from .._logs import iast_error
 from .._metrics import _set_metric_iast_executed_sink
@@ -27,7 +27,7 @@ log = get_logger(__name__)
 
 def get_weak_cipher_algorithms() -> set:
     CONFIGURED_WEAK_CIPHER_ALGORITHMS = None
-    DD_IAST_WEAK_CIPHER_ALGORITHMS = os.getenv("DD_IAST_WEAK_CIPHER_ALGORITHMS")
+    DD_IAST_WEAK_CIPHER_ALGORITHMS = getenv("DD_IAST_WEAK_CIPHER_ALGORITHMS")
     if DD_IAST_WEAK_CIPHER_ALGORITHMS:
         CONFIGURED_WEAK_CIPHER_ALGORITHMS = set(
             algo.strip() for algo in DD_IAST_WEAK_CIPHER_ALGORITHMS.lower().split(",")

@@ -3,7 +3,6 @@ import base64
 from collections import defaultdict
 from functools import partial
 import gzip
-import os
 import struct
 import threading
 import time
@@ -18,6 +17,7 @@ from ddtrace.internal.constants import DEFAULT_SERVICE_NAME
 from ddtrace.internal.native import DDSketch
 from ddtrace.internal.settings._agent import config as agent_config
 from ddtrace.internal.settings._config import config
+from ddtrace.internal.settings.env import getenv
 from ddtrace.internal.threads import Lock
 from ddtrace.internal.utils.fnv import fnv1_64
 from ddtrace.internal.utils.retry import fibonacci_backoff_with_jitter
@@ -103,7 +103,7 @@ class DataStreamsProcessor(PeriodicService):
         retry_attempts: int = 3,
     ):
         if interval is None:
-            interval = float(os.getenv("_DD_TRACE_STATS_WRITER_INTERVAL") or 10.0)
+            interval = float(getenv("_DD_TRACE_STATS_WRITER_INTERVAL") or 10.0)
         super(DataStreamsProcessor, self).__init__(interval=interval)
         self._enabled: bool = True
         self._agent_url = agent_url or agent_config.trace_agent_url

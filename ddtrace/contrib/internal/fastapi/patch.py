@@ -1,5 +1,4 @@
 import copyreg
-import os
 
 import fastapi
 import fastapi.routing
@@ -17,6 +16,7 @@ from ddtrace.internal.compat import is_wrapted
 from ddtrace.internal.logger import get_logger
 from ddtrace.internal.schema import schematize_service_name
 from ddtrace.internal.settings.asm import config as asm_config
+from ddtrace.internal.settings.env import getenv
 from ddtrace.internal.telemetry import get_config as _get_config
 from ddtrace.internal.utils.formats import asbool
 from ddtrace.internal.utils.version import parse_version
@@ -71,7 +71,7 @@ config._add(
         request_span_name="fastapi.request",
         distributed_tracing=True,
         trace_query_string=None,  # Default to global config
-        obfuscate_404_resource=os.getenv("DD_ASGI_OBFUSCATE_404_RESOURCE", default=False),
+        obfuscate_404_resource=getenv("DD_ASGI_OBFUSCATE_404_RESOURCE", default=False),
         trace_asgi_websocket_messages=_get_config(
             "DD_TRACE_WEBSOCKET_MESSAGES_ENABLED",
             default=_get_config("DD_ASGI_TRACE_WEBSOCKET", default=True, modifier=asbool),

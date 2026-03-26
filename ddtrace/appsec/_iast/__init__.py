@@ -28,7 +28,6 @@ def wrapped_function(wrapped, instance, args, kwargs):
     return wrapped(*args, **kwargs)
 """
 
-import os
 import sys
 import types
 
@@ -36,6 +35,7 @@ from ddtrace.internal import forksafe
 from ddtrace.internal.logger import get_logger
 from ddtrace.internal.module import ModuleWatchdog
 from ddtrace.internal.settings.asm import config as asm_config
+from ddtrace.internal.settings.env import dd_environ
 
 from ._listener import iast_listen
 from ._overhead_control_engine import oce
@@ -229,9 +229,9 @@ def _iast_pytest_activation():
     # This flag is checked by the fork handler to disable IAST in child processes
     _iast_in_pytest_mode = True
 
-    os.environ["DD_IAST_REQUEST_SAMPLING"] = os.environ.get("DD_IAST_REQUEST_SAMPLING") or "100.0"
-    os.environ["_DD_APPSEC_DEDUPLICATION_ENABLED"] = os.environ.get("_DD_APPSEC_DEDUPLICATION_ENABLED") or "false"
-    os.environ["DD_IAST_VULNERABILITIES_PER_REQUEST"] = os.environ.get("DD_IAST_VULNERABILITIES_PER_REQUEST") or "1000"
+    dd_environ["DD_IAST_REQUEST_SAMPLING"] = dd_environ.get("DD_IAST_REQUEST_SAMPLING") or "100.0"
+    dd_environ["_DD_APPSEC_DEDUPLICATION_ENABLED"] = dd_environ.get("_DD_APPSEC_DEDUPLICATION_ENABLED") or "false"
+    dd_environ["DD_IAST_VULNERABILITIES_PER_REQUEST"] = dd_environ.get("DD_IAST_VULNERABILITIES_PER_REQUEST") or "1000"
 
     asm_config._iast_request_sampling = 100.0
     asm_config._deduplication_enabled = False
