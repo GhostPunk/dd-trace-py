@@ -1,4 +1,3 @@
-import os
 from typing import Optional  # noqa:F401
 
 from ddtrace.internal.settings.env import getenv
@@ -48,7 +47,7 @@ class IntegrationConfig(AttrDict):
 
         service = getenv(
             "DD_%s_SERVICE" % name.upper(),
-            default=os.getenv(
+            default=getenv(
                 "DD_%s_SERVICE_NAME" % name.upper(),
                 default=None,
             ),

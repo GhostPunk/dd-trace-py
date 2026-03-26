@@ -208,7 +208,7 @@ class CIVisibility(Service):
         if custom_configurations:
             self._configurations["custom"] = custom_configurations
 
-        self._api_key = getenv("_CI_DD_API_KEY", os.getenv("DD_API_KEY"))
+        self._api_key = getenv("_CI_DD_API_KEY", getenv("DD_API_KEY"))
 
         self._dd_site = getenv("DD_SITE", AGENTLESS_DEFAULT_SITE)
         self.config = config or ddconfig.test_visibility  # type: Optional[IntegrationConfig]
@@ -626,7 +626,7 @@ class CIVisibility(Service):
             return
 
         if ddconfig._ci_visibility_agentless_enabled:
-            if not getenv("_CI_DD_API_KEY", os.getenv("DD_API_KEY")):
+            if not getenv("_CI_DD_API_KEY", getenv("DD_API_KEY")):
                 log.critical(
                     "%s disabled: environment variable DD_CIVISIBILITY_AGENTLESS_ENABLED is true but"
                     " DD_API_KEY is not set",
