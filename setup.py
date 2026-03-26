@@ -649,6 +649,9 @@ class CleanLibraries(CleanCommand):
                 egg.unlink(missing_ok=True)
             elif egg.is_dir():
                 shutil.rmtree(egg, True)
+        # Remove the shared FetchContent source cache. Build artifacts live in
+        # each extension's per-project cmake build dir (under build/) which is
+        # removed by remove_build_dir().
         cmake_deps = LibraryDownload.CACHE_DIR / "_cmake_deps"
         if cmake_deps.exists():
             shutil.rmtree(cmake_deps, True)
@@ -857,6 +860,27 @@ class CustomBuildExt(build_ext):
             except Exception as e:
                 print(f"WARNING: An error occurred while building the extension: {e}")
 
+    @staticmethod
+    def _seed_cmake_source_cache(deps_dir: Path) -> None:
+        """Copy newly-downloaded FetchContent source trees to the shared source cache.
+
+        Called after cmake configure so that subsequent extensions (and future
+        builds) can reuse the downloaded sources without re-fetching from GitHub.
+        Only the ``*-src`` trees are copied; build artifacts stay in the
+        per-project ``_deps/`` directory and are never shared.
+        """
+        if not deps_dir.is_dir():
+            return
+        shared_cache = LibraryDownload.CACHE_DIR / "_cmake_deps"
+        for src_dir in deps_dir.glob("*-src"):
+            if not src_dir.is_dir():
+                continue
+            dest = shared_cache / src_dir.name
+            if not dest.exists():
+                shared_cache.mkdir(parents=True, exist_ok=True)
+                shutil.copytree(src_dir, dest)
+                print(f"Cached FetchContent source tree: {src_dir.name}")
+
     def _get_common_cmake_args(self, source_dir, build_dir, output_dir, extension_name, build_type=None):
         """Get common CMake arguments used by both libdd_wrapper and extensions."""
         # Use base_prefix (not prefix) to get the actual Python installation path even when in a venv
@@ -877,15 +901,22 @@ class CustomBuildExt(build_ext):
             f"-DRUST_GENERATED_HEADERS_DIR={CARGO_TARGET_DIR / 'include'}",
         ]
 
-        # Point FetchContent downloads at the persistent download cache so CMake
-        # doesn't re-fetch from GitHub (e.g. abseil) on every build invocation.
-        # The cache dir is shared with other downloaded build dependencies and is
-        # preserved between CI runs. FETCHCONTENT_BASE_DIR defaults to a path
-        # inside the ephemeral cmake build dir, so without this every build would
-        # re-download from GitHub.
+        # Separate the download cache (source trees) from the build site (compiled
+        # objects). Each project gets its own _deps/ directory so CMake cache
+        # entries for Abseil et al. never bleed between projects, preventing
+        # spurious full rebuilds and stale-cache failures when settings differ
+        # across extensions (e.g. different Python paths or build types).
         cmake_args += [
-            f"-DFETCHCONTENT_BASE_DIR={LibraryDownload.CACHE_DIR / '_cmake_deps'}",
+            f"-DFETCHCONTENT_BASE_DIR={build_dir / '_deps'}",
         ]
+        # Reuse already-cloned sources from the shared download cache so that
+        # each extension does not re-fetch from GitHub. Sources are seeded into
+        # the shared cache by _seed_cmake_source_cache() after the first
+        # successful configure of any extension that uses a given dependency.
+        shared_source_cache = LibraryDownload.CACHE_DIR / "_cmake_deps"
+        for src_dir in sorted(shared_source_cache.glob("*-src")):
+            dep_name = src_dir.name[:-4].upper()  # "absl-src" → "ABSL"
+            cmake_args += [f"-DFETCHCONTENT_SOURCE_DIR_{dep_name}={src_dir}"]
 
         # Add sccache support if available
         sccache_path = os.getenv("DD_SCCACHE_PATH")
@@ -1016,6 +1047,10 @@ class CustomBuildExt(build_ext):
             Path(cmake.CMAKE_BIN_DIR) / "cmake"
         ).resolve()  # explicitly use the cmake provided by the cmake package
         subprocess.run([cmake_command, *cmake_args], cwd=cmake_build_dir, check=True)
+        # After a successful configure, seed the shared source cache with any
+        # FetchContent sources that were just downloaded, so subsequent
+        # extensions can skip the download step.
+        self._seed_cmake_source_cache(cmake_build_dir / "_deps")
         subprocess.run([cmake_command, "--build", ".", *build_args], cwd=cmake_build_dir, check=True)
         subprocess.run([cmake_command, "--install", ".", *install_args], cwd=cmake_build_dir, check=True)
 
