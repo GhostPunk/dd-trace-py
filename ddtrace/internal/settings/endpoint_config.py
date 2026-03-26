@@ -9,20 +9,20 @@ from ddtrace.constants import _CONFIG_ENDPOINT_RETRIES_ENV
 from ddtrace.constants import _CONFIG_ENDPOINT_TIMEOUT_ENV
 from ddtrace.internal.constants import DEFAULT_TIMEOUT
 from ddtrace.internal.logger import get_logger
-from ddtrace.internal.settings.env import dd_environ
-from ddtrace.internal.settings.env import getenv
 from ddtrace.internal.utils.http import Response
 from ddtrace.internal.utils.http import get_connection
 from ddtrace.internal.utils.http import verify_url
 from ddtrace.internal.utils.retry import fibonacci_backoff_with_jitter
+
+from . import env
 
 
 log = get_logger(__name__)
 
 RETRIES = 1
 try:
-    if _CONFIG_ENDPOINT_RETRIES_ENV in dd_environ:
-        RETRIES = int(getenv(_CONFIG_ENDPOINT_RETRIES_ENV, str(RETRIES)))
+    if _CONFIG_ENDPOINT_RETRIES_ENV in env:
+        RETRIES = int(env.get(_CONFIG_ENDPOINT_RETRIES_ENV, str(RETRIES)))
 except ValueError:
     log.error("Invalid value for %s. Using default value: %s", _CONFIG_ENDPOINT_RETRIES_ENV, RETRIES)
 
@@ -33,8 +33,8 @@ def _get_retries():
 
 TIMEOUT = DEFAULT_TIMEOUT
 try:
-    if _CONFIG_ENDPOINT_TIMEOUT_ENV in dd_environ:
-        TIMEOUT = int(getenv(_CONFIG_ENDPOINT_TIMEOUT_ENV, str(TIMEOUT)))
+    if _CONFIG_ENDPOINT_TIMEOUT_ENV in env:
+        TIMEOUT = int(env.get(_CONFIG_ENDPOINT_TIMEOUT_ENV, str(TIMEOUT)))
 except ValueError:
     log.error("Invalid value for %s. Using default value: %s", _CONFIG_ENDPOINT_TIMEOUT_ENV, TIMEOUT)
 
@@ -60,7 +60,7 @@ def fetch_config_from_endpoint() -> dict:
     """
     Fetch the configuration from the configuration endpoint.
     """
-    config_endpoint = getenv(_CONFIG_ENDPOINT_ENV, None)
+    config_endpoint = env.get(_CONFIG_ENDPOINT_ENV, None)
 
     if config_endpoint is None:
         return {}

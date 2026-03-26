@@ -2,7 +2,7 @@ from functools import wraps
 import logging
 import typing as t
 
-from ddtrace.internal.settings.env import getenv
+from ddtrace.internal.settings import env
 from ddtrace.testing.internal.utils import asbool
 
 
@@ -14,7 +14,7 @@ F = t.TypeVar("F", bound=t.Callable[..., t.Any])
 def setup_logging() -> None:
     testing_logger.propagate = False
 
-    debug_enabled = asbool(getenv("DD_TEST_DEBUG")) or asbool(getenv("DD_TRACE_DEBUG"))
+    debug_enabled = asbool(env.get("DD_TEST_DEBUG")) or asbool(env.get("DD_TRACE_DEBUG"))
 
     log_level = logging.DEBUG if debug_enabled else logging.INFO
     testing_logger.setLevel(log_level)

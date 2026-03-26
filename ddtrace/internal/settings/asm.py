@@ -22,7 +22,8 @@ from ddtrace.internal.constants import AI_GUARD_TIMEOUT
 from ddtrace.internal.serverless import in_aws_lambda
 from ddtrace.internal.settings._config import config as tracer_config
 from ddtrace.internal.settings._core import DDConfig
-from ddtrace.internal.settings.env import dd_environ
+
+from . import env
 
 
 def _validate_non_negative_int(r: int) -> None:
@@ -303,7 +304,7 @@ class ASMConfig(DDConfig):
 
     @property
     def asm_enabled_origin(self):
-        if APPSEC_ENV in dd_environ:
+        if APPSEC_ENV in env:
             return APPSEC.ENABLED_ORIGIN_ENV
         return self._asm_enabled_origin
 
@@ -312,10 +313,10 @@ class ASMConfig(DDConfig):
         self.__init__()
 
     def _eval_asm_can_be_enabled(self) -> None:
-        self._asm_can_be_enabled = APPSEC_ENV not in dd_environ and tracer_config._remote_config_enabled
+        self._asm_can_be_enabled = APPSEC_ENV not in env and tracer_config._remote_config_enabled
         self._load_modules = bool(self._ep_enabled and (self._asm_enabled or self._asm_can_be_enabled))
         self._asm_rc_enabled = (self._asm_enabled and tracer_config._remote_config_enabled) or self._asm_can_be_enabled
-        if APPSEC_ENV in dd_environ and self._asm_enabled:
+        if APPSEC_ENV in env and self._asm_enabled:
             tracer_config._trace_resource_renaming_enabled = True
 
     @property

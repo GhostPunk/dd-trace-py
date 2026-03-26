@@ -2,7 +2,7 @@ from typing import Optional
 
 from ddtrace._trace.processor import TraceProcessor
 from ddtrace._trace.span import Span
-from ddtrace.internal.settings.env import getenv
+from ddtrace.internal.settings import env
 from ddtrace.internal.utils.formats import asbool
 
 
@@ -13,7 +13,7 @@ class APMTracingEnabledFilter(TraceProcessor):
 
     def __init__(self) -> None:
         super().__init__()
-        self._apm_tracing_enabled = asbool(getenv("DD_APM_TRACING_ENABLED", "true"))
+        self._apm_tracing_enabled = asbool(env.get("DD_APM_TRACING_ENABLED", "true"))
 
     def process_trace(self, trace: list[Span]) -> Optional[list[Span]]:
         if not self._apm_tracing_enabled:

@@ -17,7 +17,7 @@ from ddtrace.ext import redis as redisx
 from ddtrace.internal.constants import COMPONENT
 from ddtrace.internal.schema import schematize_cache_operation
 from ddtrace.internal.schema import schematize_service_name
-from ddtrace.internal.settings.env import getenv
+from ddtrace.internal.settings import env
 from ddtrace.internal.utils.formats import CMD_MAX_LEN
 from ddtrace.internal.utils.formats import asbool
 from ddtrace.internal.utils.formats import stringify_cache_args
@@ -33,8 +33,8 @@ config._add(
     "rediscluster",
     dict(
         _default_service=schematize_service_name("rediscluster"),
-        cmd_max_length=int(getenv("DD_REDISCLUSTER_CMD_MAX_LENGTH", CMD_MAX_LEN)),
-        resource_only_command=asbool(getenv("DD_REDIS_RESOURCE_ONLY_COMMAND", True)),
+        cmd_max_length=int(env.get("DD_REDISCLUSTER_CMD_MAX_LENGTH", CMD_MAX_LEN)),
+        resource_only_command=asbool(env.get("DD_REDIS_RESOURCE_ONLY_COMMAND", True)),
     ),
 )
 

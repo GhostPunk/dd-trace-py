@@ -1,9 +1,9 @@
 import socket
 
-from ddtrace.internal.settings.env import getenv
+from ddtrace.internal.settings import env
 
 
-_hostname = getenv("DD_HOSTNAME", "")  # type: str
+_hostname = env.get("DD_HOSTNAME", "")  # type: str
 
 
 def get_hostname():

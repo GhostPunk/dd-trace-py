@@ -17,7 +17,7 @@ from ddtrace.internal import core
 from ddtrace.internal.schema import SpanDirection
 from ddtrace.internal.schema import schematize_service_name
 from ddtrace.internal.schema import schematize_url_operation
-from ddtrace.internal.settings.env import getenv
+from ddtrace.internal.settings import env
 from ddtrace.internal.utils.deprecations import DDTraceDeprecationWarning
 from ddtrace.internal.utils.formats import asbool
 from ddtrace.vendor.debtcollector import deprecate
@@ -30,7 +30,7 @@ log = logging.getLogger(__name__)
 config._add(
     "cherrypy",
     dict(
-        distributed_tracing=asbool(getenv("DD_CHERRYPY_DISTRIBUTED_TRACING", default=True)),
+        distributed_tracing=asbool(env.get("DD_CHERRYPY_DISTRIBUTED_TRACING", default=True)),
     ),
 )
 

@@ -17,8 +17,8 @@ from ddtrace.internal.constants import COMPONENT
 from ddtrace.internal.logger import get_logger
 from ddtrace.internal.schema import schematize_url_operation
 from ddtrace.internal.schema.span_attribute_schema import SpanDirection
+from ddtrace.internal.settings import env
 from ddtrace.internal.settings.asm import config as asm_config
-from ddtrace.internal.settings.env import getenv
 from ddtrace.internal.utils.formats import asbool
 from ddtrace.propagation.http import HTTPPropagator
 from ddtrace.trace import tracer
@@ -33,7 +33,7 @@ log = get_logger(__name__)
 config._add(
     "httplib",
     {
-        "distributed_tracing": asbool(getenv("DD_HTTPLIB_DISTRIBUTED_TRACING", default=True)),
+        "distributed_tracing": asbool(env.get("DD_HTTPLIB_DISTRIBUTED_TRACING", default=True)),
         "default_http_tag_query_string": config._http_client_tag_query_string,
     },
 )

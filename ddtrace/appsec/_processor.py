@@ -36,8 +36,8 @@ from ddtrace.internal._unpatched import unpatched_open as open  # noqa: A004
 from ddtrace.internal.logger import get_logger
 from ddtrace.internal.rate_limiter import RateLimiter
 from ddtrace.internal.remoteconfig import PayloadType
+from ddtrace.internal.settings import env
 from ddtrace.internal.settings.asm import config as asm_config
-from ddtrace.internal.settings.env import getenv
 
 
 log = get_logger(__name__)
@@ -79,7 +79,7 @@ def get_rules() -> str:
 
 
 def _get_rate_limiter() -> RateLimiter:
-    return RateLimiter(int(getenv("DD_APPSEC_TRACE_RATE_LIMIT", DEFAULT.TRACE_RATE_LIMIT)))
+    return RateLimiter(int(env.get("DD_APPSEC_TRACE_RATE_LIMIT", DEFAULT.TRACE_RATE_LIMIT)))
 
 
 @dataclasses.dataclass(eq=False)

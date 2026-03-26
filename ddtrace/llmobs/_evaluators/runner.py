@@ -3,7 +3,7 @@ from concurrent import futures
 from ddtrace.internal.logger import get_logger
 from ddtrace.internal.periodic import PeriodicService
 from ddtrace.internal.service import ServiceStatus
-from ddtrace.internal.settings.env import getenv
+from ddtrace.internal.settings import env
 from ddtrace.internal.telemetry import telemetry_writer
 from ddtrace.internal.telemetry.constants import TELEMETRY_NAMESPACE
 from ddtrace.internal.threads import RLock
@@ -48,7 +48,7 @@ class EvaluatorRunner(PeriodicService):
         if len(self.evaluators) > 0:
             return
 
-        evaluator_str = getenv(self.EVALUATORS_ENV_VAR)
+        evaluator_str = env.get(self.EVALUATORS_ENV_VAR)
         if evaluator_str is None:
             return
 

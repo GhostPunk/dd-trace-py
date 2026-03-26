@@ -61,7 +61,7 @@ from ddtrace.contrib.internal.valkey_utils import determine_row_count
 from ddtrace.contrib.trace_utils import unwrap
 from ddtrace.internal import core
 from ddtrace.internal.schema import schematize_service_name
-from ddtrace.internal.settings.env import getenv
+from ddtrace.internal.settings import env
 from ddtrace.internal.utils.formats import CMD_MAX_LEN
 from ddtrace.internal.utils.formats import asbool
 from ddtrace.internal.utils.formats import stringify_cache_args
@@ -71,8 +71,8 @@ config._add(
     "valkey",
     {
         "_default_service": schematize_service_name("valkey"),
-        "cmd_max_length": int(getenv("DD_VALKEY_CMD_MAX_LENGTH", CMD_MAX_LEN)),
-        "resource_only_command": asbool(getenv("DD_VALKEY_RESOURCE_ONLY_COMMAND", True)),
+        "cmd_max_length": int(env.get("DD_VALKEY_CMD_MAX_LENGTH", CMD_MAX_LEN)),
+        "resource_only_command": asbool(env.get("DD_VALKEY_RESOURCE_ONLY_COMMAND", True)),
     },
 )
 

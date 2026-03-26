@@ -15,8 +15,8 @@ from ddtrace.appsec._iast.constants import VULN_INSECURE_HASHING_TYPE
 from ddtrace.appsec._iast.constants import VULN_WEAK_CIPHER_TYPE
 from ddtrace.appsec._iast.constants import VULN_WEAK_RANDOMNESS
 from ddtrace.internal.logger import get_logger
+from ddtrace.internal.settings import env
 from ddtrace.internal.settings.asm import config as asm_config
-from ddtrace.internal.settings.env import dd_environ
 
 
 log = get_logger(__name__)
@@ -109,7 +109,7 @@ class Vulnerability:
     type: str
     evidence: Evidence
     location: Location
-    hash: int = dataclasses.field(init=False, compare=False, hash=("PYTEST_CURRENT_TEST" in dd_environ), repr=False)
+    hash: int = dataclasses.field(init=False, compare=False, hash=("PYTEST_CURRENT_TEST" in env), repr=False)
 
     def __post_init__(self):
         self.hash = zlib.crc32(repr(self).encode())

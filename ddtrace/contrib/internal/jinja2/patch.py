@@ -7,7 +7,7 @@ from ddtrace.constants import _SPAN_MEASURED_KEY
 from ddtrace.contrib.internal.trace_utils import unwrap as _u
 from ddtrace.ext import SpanTypes
 from ddtrace.internal.constants import COMPONENT
-from ddtrace.internal.settings.env import getenv
+from ddtrace.internal.settings import env
 from ddtrace.internal.utils import ArgumentError
 from ddtrace.internal.utils import get_argument_value
 from ddtrace.trace import tracer
@@ -19,7 +19,7 @@ from .constants import DEFAULT_TEMPLATE_NAME
 config._add(
     "jinja2",
     {
-        "service_name": getenv("DD_JINJA2_SERVICE_NAME"),
+        "service_name": env.get("DD_JINJA2_SERVICE_NAME"),
     },
 )
 

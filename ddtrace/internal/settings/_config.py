@@ -28,7 +28,6 @@ from ddtrace.internal.schema import DEFAULT_SPAN_SERVICE_NAME
 from ddtrace.internal.serverless import in_aws_lambda
 from ddtrace.internal.serverless import in_azure_function
 from ddtrace.internal.serverless import in_gcp_function
-from ddtrace.internal.settings.env import dd_environ
 from ddtrace.internal.telemetry import get_config as _get_config
 from ddtrace.internal.telemetry import telemetry_writer
 from ddtrace.internal.telemetry import validate_and_report_otel_metrics_exporter_enabled
@@ -39,6 +38,7 @@ from ddtrace.internal.utils.formats import asbool
 from ddtrace.internal.utils.formats import parse_tags_str
 from ddtrace.vendor.debtcollector import deprecate
 
+from . import env
 from ._inferred_base_service import detect_service
 from .endpoint_config import fetch_config_from_endpoint
 from .http import HttpConfig
@@ -552,7 +552,7 @@ class Config(object):
         )
 
         # Emit deprecation warning if env var is set (still functional, removal in 5.0.0)
-        if "DD_TRACE_128_BIT_TRACEID_GENERATION_ENABLED" in dd_environ:
+        if "DD_TRACE_128_BIT_TRACEID_GENERATION_ENABLED" in env:
             deprecate(
                 "DD_TRACE_128_BIT_TRACEID_GENERATION_ENABLED is deprecated",
                 message="128-bit trace ID generation will become mandatory in version 5.0.0.",
@@ -654,7 +654,7 @@ class Config(object):
         if self._otel_trace_enabled or self._otel_logs_enabled or self._otel_metrics_enabled:
             # Replaces the default otel api runtime context with DDRuntimeContext
             # https://github.com/open-telemetry/opentelemetry-python/blob/v1.16.0/opentelemetry-api/src/opentelemetry/context/__init__.py#L53
-            dd_environ["OTEL_PYTHON_CONTEXT"] = "ddcontextvars_context"
+            env["OTEL_PYTHON_CONTEXT"] = "ddcontextvars_context"
         self._otel_enabled = self._otel_trace_enabled or self._otel_metrics_enabled or self._otel_logs_enabled
 
         self._trace_methods = _get_config("DD_TRACE_METHODS")

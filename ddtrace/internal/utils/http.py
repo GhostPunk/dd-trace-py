@@ -23,7 +23,7 @@ from ddtrace.internal.constants import SAMPLING_DECISION_TRACE_TAG_KEY
 from ddtrace.internal.constants import W3C_TRACESTATE_ORIGIN_KEY
 from ddtrace.internal.constants import W3C_TRACESTATE_PARENT_ID_KEY
 from ddtrace.internal.constants import W3C_TRACESTATE_SAMPLING_PRIORITY_KEY
-from ddtrace.internal.settings.env import getenv
+from ddtrace.internal.settings import env
 from ddtrace.internal.utils import _get_metas_to_propagate
 from ddtrace.internal.utils.cache import cached
 
@@ -334,9 +334,9 @@ def _get_blocked_template(accept_header_value: str, security_response_id: str) -
         return _format_template(_JSON_BLOCKED_TEMPLATE_CACHE, security_response_id)
 
     if need_html_template:
-        template_path = getenv("DD_APPSEC_HTTP_BLOCKED_TEMPLATE_HTML")
+        template_path = env.get("DD_APPSEC_HTTP_BLOCKED_TEMPLATE_HTML")
     else:
-        template_path = getenv("DD_APPSEC_HTTP_BLOCKED_TEMPLATE_JSON")
+        template_path = env.get("DD_APPSEC_HTTP_BLOCKED_TEMPLATE_JSON")
 
     if template_path:
         try:
